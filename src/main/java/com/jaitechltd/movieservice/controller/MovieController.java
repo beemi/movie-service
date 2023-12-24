@@ -8,6 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 
 @Slf4j
 @RestController
@@ -53,6 +55,21 @@ public class MovieController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(movie, HttpStatus.OK);
+    }
+
+    @GetMapping("/search")
+    @Operation(summary = "Get movies by name, genre and language", description = "Get movies by name, genre and language", tags = {"movies"}, operationId = "getMovies", responses = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Movies found"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Movies not found")})
+    public ResponseEntity<Object> getMovies(@RequestParam(value = "movieName", required = false) String movieName,
+                                            @RequestParam(value = "movieGenre", required = false) String movieGenre,
+                                            @RequestParam(value = "movieLanguage", required = false) String movieLanguage) {
+
+        List<Movie> movies = movieService.getMovies(movieName, movieGenre, movieLanguage);
+        if (movies == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(movies, HttpStatus.OK);
     }
 
     @DeleteMapping("/{movieId}")

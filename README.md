@@ -1,6 +1,10 @@
 # Movie REST API service
 
+### Start the MongoDB database
 
+```bash
+docker-compose up -d
+```
 
 ## Swagger
 
