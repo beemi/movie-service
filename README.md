@@ -18,22 +18,12 @@ This is an example of a REST API using Spring Boot and MongoDB.
 docker-compose up -d
 ```
 
-### Start the application
-
-```bash
-./mvnw spring-boot:run
-```
-
-### Stop the application
-
-```bash
-./mvnw spring-boot:stop
-```
-
 ### Build the application
 
+`jar` file will be generated in `target` folder.
+
 ```bash
-./mvnw clean package
+./mvnw clean package -DskipTests
 ```
 
 ## Swagger
