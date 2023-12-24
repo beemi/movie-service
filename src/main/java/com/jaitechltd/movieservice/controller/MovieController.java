@@ -38,8 +38,16 @@ public class MovieController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid id supplied"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Movie not found"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "405", description = "Validation exception")})
-    public String updateMovie(@PathVariable Integer movieId) {
-        return "Movie updated with id: " + movieId;
+    public ResponseEntity<Object> updateMovie(@PathVariable Integer movieId, @RequestBody Movie movie) {
+
+        log.info("Update movie request received: {}", movie);
+        final var existingMovie = movieService.getMovie(movieId);
+        if (existingMovie == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } else {
+            final var updatedMovie = movieService.updateMovie(movieId, movie);
+            return new ResponseEntity<>(updatedMovie, HttpStatus.OK);
+        }
     }
 
 

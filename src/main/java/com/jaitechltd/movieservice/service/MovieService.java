@@ -15,4 +15,6 @@ public interface MovieService {
     List<Movie> getAllMovies();
 
     List<Movie> getMovies(String movieName, String movieGenre, String movieLanguage);
+
+    Movie updateMovie(Integer movieId, Movie movie);
 }

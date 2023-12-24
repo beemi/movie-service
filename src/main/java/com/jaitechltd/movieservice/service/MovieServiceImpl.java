@@ -1,13 +1,11 @@
 package com.jaitechltd.movieservice.service;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import com.jaitechltd.movieservice.model.Movie;
+import com.jaitechltd.movieservice.repository.MovieRepository;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import com.jaitechltd.movieservice.repository.MovieRepository;
 import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 
@@ -71,7 +69,7 @@ public class MovieServiceImpl implements MovieService {
         }
 
         if (!criteria.isEmpty()) {
-            query.addCriteria(new Criteria().andOperator(criteria.toArray(new Criteria[criteria.size()])));
+            query.addCriteria(new Criteria().andOperator(criteria.toArray(new Criteria[0])));
         }
 
         Pageable pageable = PageRequest.of(0, 10);
@@ -79,5 +77,30 @@ public class MovieServiceImpl implements MovieService {
         query.with(pageable);
 
         return mongoTemplate.find(query, Movie.class);
+    }
+
+    @Override
+    public Movie updateMovie(Integer movieId, Movie movie) {
+
+        final var existingMovie = movieRepository.findByMovieId(movieId);
+
+        existingMovie.setMovieName(movie.getMovieName());
+        existingMovie.setMovieGenre(movie.getMovieGenre());
+        existingMovie.setMovieLanguage(movie.getMovieLanguage());
+        existingMovie.setMovieReleaseDate(movie.getMovieReleaseDate());
+        existingMovie.setMovieDirector(movie.getMovieDirector());
+        existingMovie.setMovieProducer(movie.getMovieProducer());
+        existingMovie.setMovieCast(movie.getMovieCast());
+        existingMovie.setMovieDescription(movie.getMovieDescription());
+        existingMovie.setMovieUpdatedDate(new Date());
+        existingMovie.setMovieStatus(movie.getMovieStatus());
+        existingMovie.setMovieRating(movie.getMovieRating());
+        existingMovie.setMovieDuration(movie.getMovieDuration());
+        existingMovie.setMovieTrailer(movie.getMovieTrailer());
+        existingMovie.setMoviePoster(movie.getMoviePoster());
+        existingMovie.setMovieBanner(movie.getMovieBanner());
+        existingMovie.setMovieCountry(movie.getMovieCountry());
+
+        return movieRepository.save(existingMovie);
     }
 }
