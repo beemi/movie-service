@@ -1,4 +1,16 @@
-# Movie REST API service
+# Spring boot REST API with MongoDB
+
+This is an example of a REST API using Spring Boot and MongoDB.
+
+## Requirements
+
+- Java 17
+- Docker
+- Docker Compose
+- Maven
+- MongoDB
+- MongoDB Compass
+- Postman
 
 ### Start the MongoDB database
 
