@@ -26,6 +26,10 @@ docker-compose up -d
 ./mvnw clean package -DskipTests
 ```
 
+## Metrics
+
+Access Prometheus at: http://localhost:8090/actuator/prometheus
+
 ## Swagger
 
 Access Open API documentation at: http://localhost:8090/swagger-ui/index.html
