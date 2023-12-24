@@ -1,53 +1,93 @@
 package com.jaitechltd.movieservice.service;
 
+import com.jaitechltd.movieservice.exceptions.MovieCreationException;
+import com.jaitechltd.movieservice.exceptions.UpdateMovieException;
+import com.jaitechltd.movieservice.metrics.MetricsService;
 import com.jaitechltd.movieservice.model.Movie;
 import com.jaitechltd.movieservice.repository.MovieRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 @Service
+@Slf4j
 public class MovieServiceImpl implements MovieService {
 
     private final MovieRepository movieRepository;
 
     private final MongoTemplate mongoTemplate;
 
-    public MovieServiceImpl(MovieRepository movieRepository, MongoTemplate mongoTemplate) {
+    private final MetricsService metricsService;
+
+    public MovieServiceImpl(MovieRepository movieRepository, MongoTemplate mongoTemplate, MetricsService metricsService) {
         this.movieRepository = movieRepository;
         this.mongoTemplate = mongoTemplate;
+        this.metricsService = metricsService;
     }
 
     @Override
-    public Movie createMovie(Movie movie) {
+    @Transactional
+    public Movie createMovie(Movie movie) throws MovieCreationException {
 
         final var date = new Date();
         movie.setMovieCreatedDate(date);
         movie.setMovieUpdatedDate(date);
 
-        return movieRepository.save(movie);
+        try {
+            Movie savedMovie = movieRepository.save(movie);
+            metricsService.addMovieSuccessCounter();
+            return savedMovie;
+        } catch (Exception e) {
+            log.error("Error while saving movie", e);
+            metricsService.addMovieFailureCounter();
+            throw new MovieCreationException("Failed to create movie", e);
+        }
     }
 
     @Override
     public Movie getMovie(Integer movieId) {
-        return movieRepository.findByMovieId(movieId);
+        try {
+            metricsService.getMovieSuccessCounter();
+            return movieRepository.findByMovieId(movieId);
+        } catch (Exception e) {
+            log.error("Error while fetching movie", e);
+            metricsService.getMovieFailureCounter();
+            return null;
+        }
     }
 
     @Override
     public void deleteByMovieId(Integer movieId) {
-        movieRepository.deleteByMovieId(movieId);
+
+        try {
+            metricsService.deleteMovieSuccessCounter();
+            movieRepository.deleteByMovieId(movieId);
+        } catch (Exception e) {
+            log.error("Error while deleting movie", e);
+            metricsService.deleteMovieFailureCounter();
+        }
     }
 
     @Override
     public List<Movie> getAllMovies() {
-        return movieRepository.findAll();
+
+        try {
+            metricsService.getAllMoviesSuccessCounter();
+            return movieRepository.findAll();
+        } catch (Exception e) {
+            log.error("Error while fetching all movies", e);
+            metricsService.getAllMoviesFailureCounter();
+            return new ArrayList<>();
+        }
     }
 
     @Override
@@ -101,6 +141,14 @@ public class MovieServiceImpl implements MovieService {
         existingMovie.setMovieBanner(movie.getMovieBanner());
         existingMovie.setMovieCountry(movie.getMovieCountry());
 
-        return movieRepository.save(existingMovie);
+        try {
+            Movie savedMovie = movieRepository.save(existingMovie);
+            metricsService.updateMovieSuccessCounter();
+            return savedMovie;
+        } catch (Exception e) {
+            log.error("Error while updating movie", e);
+            metricsService.updateMovieFailureCounter();
+            throw new UpdateMovieException("Failed to update movie", e);
+        }
     }
 }

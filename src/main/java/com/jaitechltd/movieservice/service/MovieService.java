@@ -1,12 +1,13 @@
 package com.jaitechltd.movieservice.service;
 
+import com.jaitechltd.movieservice.exceptions.MovieCreationException;
 import com.jaitechltd.movieservice.model.Movie;
 
 import java.util.List;
 
 public interface MovieService {
 
-    Movie createMovie(Movie movie);
+    Movie createMovie(Movie movie) throws MovieCreationException;
 
     Movie getMovie(Integer movieId);
 

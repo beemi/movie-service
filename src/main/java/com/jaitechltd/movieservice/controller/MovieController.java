@@ -1,5 +1,6 @@
 package com.jaitechltd.movieservice.controller;
 
+import com.jaitechltd.movieservice.exceptions.MovieCreationException;
 import com.jaitechltd.movieservice.model.Movie;
 import com.jaitechltd.movieservice.service.MovieService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -27,9 +28,11 @@ public class MovieController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "Movie created"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid input"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "409", description = "Movie already exists")})
-    public Movie createMovie(@RequestBody Movie movie) {
+    public ResponseEntity<Object> createMovie(@RequestBody Movie movie) throws MovieCreationException {
         log.info("Create movie request received: {}", movie);
-        return movieService.createMovie(movie);
+
+        final var savedMovie = movieService.createMovie(movie);
+        return new ResponseEntity<>(savedMovie, HttpStatus.CREATED);
     }
 
     @PutMapping("/{movieId}")
