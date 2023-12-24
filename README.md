@@ -18,6 +18,24 @@ This is an example of a REST API using Spring Boot and MongoDB.
 docker-compose up -d
 ```
 
+### Start the application
+
+```bash
+./mvnw spring-boot:run
+```
+
+### Stop the application
+
+```bash
+./mvnw spring-boot:stop
+```
+
+### Build the application
+
+```bash
+./mvnw clean package
+```
+
 ## Swagger
 
 Access Open API documentation at: http://localhost:8090/swagger-ui/index.html
