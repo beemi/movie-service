@@ -30,6 +30,17 @@ docker-compose up -d
 
 Access Prometheus at: http://localhost:8090/actuator/prometheus
 
+## kafka
+
+### Run Just Kafka services
+```bash
+docker-compose -f docker-compose.kafka.yml up -d
+```
+
+Kafka can be accessed at localhost:9092, also available via the Kafka UI at http://localhost:8080/.
+
+![Kafka UI](docs/images/kafka-ui.png)
+
 ## Swagger
 
 Access Open API documentation at: http://localhost:8090/swagger-ui/index.html

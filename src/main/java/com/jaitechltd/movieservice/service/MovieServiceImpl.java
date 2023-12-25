@@ -5,6 +5,7 @@ import com.jaitechltd.movieservice.exceptions.UpdateMovieException;
 import com.jaitechltd.movieservice.metrics.MetricsService;
 import com.jaitechltd.movieservice.model.Movie;
 import com.jaitechltd.movieservice.repository.MovieRepository;
+import kafka.KafkaProducerService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -23,15 +24,18 @@ import java.util.List;
 public class MovieServiceImpl implements MovieService {
 
     private final MovieRepository movieRepository;
-
     private final MongoTemplate mongoTemplate;
-
     private final MetricsService metricsService;
+    private final KafkaProducerService kafkaProducerService;
 
-    public MovieServiceImpl(MovieRepository movieRepository, MongoTemplate mongoTemplate, MetricsService metricsService) {
+    public MovieServiceImpl(MovieRepository movieRepository,
+                            MongoTemplate mongoTemplate,
+                            MetricsService metricsService,
+                            KafkaProducerService kafkaProducerService) {
         this.movieRepository = movieRepository;
         this.mongoTemplate = mongoTemplate;
         this.metricsService = metricsService;
+        this.kafkaProducerService = kafkaProducerService;
     }
 
     @Override
@@ -44,6 +48,7 @@ public class MovieServiceImpl implements MovieService {
 
         try {
             Movie savedMovie = movieRepository.save(movie);
+            kafkaProducerService.publish("movie", savedMovie);
             metricsService.addMovieSuccessCounter();
             return savedMovie;
         } catch (Exception e) {
