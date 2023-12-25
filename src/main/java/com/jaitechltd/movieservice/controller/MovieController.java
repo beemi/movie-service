@@ -5,6 +5,8 @@ import com.jaitechltd.movieservice.model.ErrorResponse;
 import com.jaitechltd.movieservice.model.Movie;
 import com.jaitechltd.movieservice.service.MovieService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,7 +33,8 @@ public class MovieController {
     @Operation(summary = "Create a new movie", description = "Create a new movie", tags = {"movies"}, operationId = "createMovie", responses = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "Movie created"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid input"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "409", description = "Movie already exists")})
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "409", description = "Movie already exists", content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = ErrorResponse.class)))})
     public ResponseEntity<Object> createMovie(@RequestBody Movie movie) throws MovieCreationException {
 
         log.info("Create movie request received: {}", movie);
