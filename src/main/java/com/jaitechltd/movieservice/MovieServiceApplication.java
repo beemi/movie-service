@@ -7,7 +7,6 @@ import org.springframework.kafka.annotation.EnableKafka;
 
 @Slf4j
 @SpringBootApplication
-@EnableKafka
 public class MovieServiceApplication {
 
     public static void main(String[] args) {

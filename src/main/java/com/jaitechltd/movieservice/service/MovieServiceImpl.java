@@ -3,10 +3,10 @@ package com.jaitechltd.movieservice.service;
 import com.jaitechltd.movieservice.config.properties.EventsKafkaProperties;
 import com.jaitechltd.movieservice.exceptions.MovieCreationException;
 import com.jaitechltd.movieservice.exceptions.UpdateMovieException;
+import com.jaitechltd.movieservice.kafka.KafkaProducerService;
 import com.jaitechltd.movieservice.metrics.MetricsService;
 import com.jaitechltd.movieservice.model.Movie;
 import com.jaitechltd.movieservice.repository.MovieRepository;
-import com.jaitechltd.movieservice.kafka.KafkaProducerService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -16,8 +16,8 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Service
@@ -45,12 +45,11 @@ public class MovieServiceImpl implements MovieService {
     @Transactional
     public Movie createMovie(Movie movie) throws MovieCreationException {
 
-        final var date = new Date();
-        movie.setMovieCreatedDate(date);
-        movie.setMovieUpdatedDate(date);
+        movie.setMovieCreatedDate(Instant.now());
+        movie.setMovieUpdatedDate(Instant.now());
 
         try {
-            Movie savedMovie = movieRepository.save(movie);
+            final var savedMovie = movieRepository.save(movie);
             kafkaProducerService.publish(eventsKafkaProperties.getTopic(), savedMovie);
             metricsService.addMovieSuccessCounter();
             return savedMovie;
@@ -140,7 +139,7 @@ public class MovieServiceImpl implements MovieService {
         existingMovie.setMovieProducer(movie.getMovieProducer());
         existingMovie.setMovieCast(movie.getMovieCast());
         existingMovie.setMovieDescription(movie.getMovieDescription());
-        existingMovie.setMovieUpdatedDate(new Date());
+        existingMovie.setMovieUpdatedDate(Instant.now());
         existingMovie.setMovieStatus(movie.getMovieStatus());
         existingMovie.setMovieRating(movie.getMovieRating());
         existingMovie.setMovieDuration(movie.getMovieDuration());
@@ -158,5 +157,10 @@ public class MovieServiceImpl implements MovieService {
             metricsService.updateMovieFailureCounter();
             throw new UpdateMovieException("Failed to update movie", e);
         }
+    }
+
+    @Override
+    public List<Movie> getMoviesByName(final String movieName) {
+        return movieRepository.findByMovieName(movieName);
     }
 }

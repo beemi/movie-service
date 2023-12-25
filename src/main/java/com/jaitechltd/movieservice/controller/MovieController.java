@@ -1,6 +1,7 @@
 package com.jaitechltd.movieservice.controller;
 
 import com.jaitechltd.movieservice.exceptions.MovieCreationException;
+import com.jaitechltd.movieservice.model.ErrorResponse;
 import com.jaitechltd.movieservice.model.Movie;
 import com.jaitechltd.movieservice.service.MovieService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -9,7 +10,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 
 @Slf4j
@@ -29,7 +33,19 @@ public class MovieController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid input"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "409", description = "Movie already exists")})
     public ResponseEntity<Object> createMovie(@RequestBody Movie movie) throws MovieCreationException {
+
         log.info("Create movie request received: {}", movie);
+
+        final var existingMovie = movieService.getMovie(movie.getMovieId());
+        if (existingMovie != null) {
+            var errorresponse = ErrorResponse.builder()
+                    .timestamp(LocalDateTime.now())
+                    .details(existingMovie)
+                    .message("Movie already exists")
+                    .build();
+
+            return new ResponseEntity<>(errorresponse, HttpStatus.CONFLICT);
+        }
 
         final var savedMovie = movieService.createMovie(movie);
         return new ResponseEntity<>(savedMovie, HttpStatus.CREATED);
@@ -61,11 +77,25 @@ public class MovieController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Movie not found")})
     public ResponseEntity<Object> getMovie(@PathVariable Integer movieId) {
 
+        log.info("Get movie request received for id: {}", movieId);
+
         final var movie = movieService.getMovie(movieId);
         if (movie == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(movie, HttpStatus.OK);
+    }
+
+    @GetMapping("/searchByName")
+    @Operation(summary = "Get movies by name", description = "Get movies by name", tags = {"movies"}, operationId = "getMoviesByName", responses = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Movies found"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Movies not found")})
+    public ResponseEntity<Object> getMoviesByName(@RequestParam(value = "movieName", required = true) final String movieName) {
+
+        log.info("Get movies request received for name: {}", movieName);
+
+        List<Movie> movies = movieService.getMoviesByName(movieName);
+        return new ResponseEntity<>(Objects.requireNonNullElseGet(movies, Optional::empty), HttpStatus.OK);
     }
 
     @GetMapping("/search")
@@ -75,6 +105,8 @@ public class MovieController {
     public ResponseEntity<Object> getMovies(@RequestParam(value = "movieName", required = false) String movieName,
                                             @RequestParam(value = "movieGenre", required = false) String movieGenre,
                                             @RequestParam(value = "movieLanguage", required = false) String movieLanguage) {
+
+        log.info("Get movies request received for name: {}, genre: {}, language: {}", movieName, movieGenre, movieLanguage);
 
         List<Movie> movies = movieService.getMovies(movieName, movieGenre, movieLanguage);
         if (movies == null) {
@@ -89,6 +121,9 @@ public class MovieController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid id supplied"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Movie not found")})
     public ResponseEntity<Object> deleteByMovieId(@PathVariable Integer movieId) {
+
+        log.info("Delete movie request received for id: {}", movieId);
+
         movieService.deleteByMovieId(movieId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
@@ -98,6 +133,9 @@ public class MovieController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Movies found"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Movies not found")})
     public ResponseEntity<Object> getAllMovies() {
+
+        log.info("Get all movies request received");
+
         return new ResponseEntity<>(movieService.getAllMovies(), HttpStatus.OK);
     }
 }

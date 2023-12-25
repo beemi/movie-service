@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.time.Instant;
 import java.util.Date;
 
 @Data
@@ -29,8 +30,8 @@ public class Movie {
     private String movieProducer;
     private String movieCast;
     private String movieDescription;
-    private Date movieCreatedDate;
-    private Date movieUpdatedDate;
+    private Instant movieCreatedDate;
+    private Instant movieUpdatedDate;
     private String movieStatus;
     private String movieRating;
     private String movieDuration;
