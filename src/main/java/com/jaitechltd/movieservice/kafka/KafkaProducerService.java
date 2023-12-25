@@ -1,4 +1,4 @@
-package kafka;
+package com.jaitechltd.movieservice.kafka;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jaitechltd.movieservice.model.Movie;

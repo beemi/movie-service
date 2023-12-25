@@ -1,4 +1,4 @@
-package kafka;
+package com.jaitechltd.movieservice.kafka;
 
 import java.util.function.BiConsumer;
 

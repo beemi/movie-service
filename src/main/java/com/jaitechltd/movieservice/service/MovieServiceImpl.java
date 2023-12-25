@@ -5,7 +5,7 @@ import com.jaitechltd.movieservice.exceptions.UpdateMovieException;
 import com.jaitechltd.movieservice.metrics.MetricsService;
 import com.jaitechltd.movieservice.model.Movie;
 import com.jaitechltd.movieservice.repository.MovieRepository;
-import kafka.KafkaProducerService;
+import com.jaitechltd.movieservice.kafka.KafkaProducerService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;

@@ -1,8 +1,8 @@
 package com.jaitechltd.movieservice.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import kafka.KafkaProducerService;
-import kafka.KafkaPublisherCallback;
+import com.jaitechltd.movieservice.kafka.KafkaProducerService;
+import com.jaitechltd.movieservice.kafka.KafkaPublisherCallback;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.core.KafkaTemplate;
