@@ -1,5 +1,6 @@
 package com.jaitechltd.movieservice.service;
 
+import com.jaitechltd.movieservice.config.properties.EventsKafkaProperties;
 import com.jaitechltd.movieservice.exceptions.MovieCreationException;
 import com.jaitechltd.movieservice.exceptions.UpdateMovieException;
 import com.jaitechltd.movieservice.metrics.MetricsService;
@@ -23,15 +24,17 @@ import java.util.List;
 @Slf4j
 public class MovieServiceImpl implements MovieService {
 
+    private final EventsKafkaProperties eventsKafkaProperties;
     private final MovieRepository movieRepository;
     private final MongoTemplate mongoTemplate;
     private final MetricsService metricsService;
     private final KafkaProducerService kafkaProducerService;
 
-    public MovieServiceImpl(MovieRepository movieRepository,
+    public MovieServiceImpl(EventsKafkaProperties eventsKafkaProperties, MovieRepository movieRepository,
                             MongoTemplate mongoTemplate,
                             MetricsService metricsService,
                             KafkaProducerService kafkaProducerService) {
+        this.eventsKafkaProperties = eventsKafkaProperties;
         this.movieRepository = movieRepository;
         this.mongoTemplate = mongoTemplate;
         this.metricsService = metricsService;
@@ -48,7 +51,7 @@ public class MovieServiceImpl implements MovieService {
 
         try {
             Movie savedMovie = movieRepository.save(movie);
-            kafkaProducerService.publish("movie", savedMovie);
+            kafkaProducerService.publish(eventsKafkaProperties.getTopic(), savedMovie);
             metricsService.addMovieSuccessCounter();
             return savedMovie;
         } catch (Exception e) {
