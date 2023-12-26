@@ -1,6 +1,7 @@
 package com.jaitechltd.movieservice.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -21,6 +22,7 @@ public class Movie {
 
     @Id
     @Indexed(unique = true)
+    @Positive(message = "Movie ID must be positive")
     private Integer movieId;
 
     private String movieName;

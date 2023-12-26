@@ -10,7 +10,7 @@ public interface MovieService {
 
     MovieDTO createMovie(Movie movie);
 
-    Optional<Movie> getMovie(Integer movieId);
+    Optional<MovieDTO> getMovieByMovieId(Integer movieId);
 
     void deleteByMovieId(Integer movieId);
 

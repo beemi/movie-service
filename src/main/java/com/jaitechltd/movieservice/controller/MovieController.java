@@ -1,5 +1,6 @@
 package com.jaitechltd.movieservice.controller;
 
+import com.jaitechltd.movieservice.dto.MovieDTO;
 import com.jaitechltd.movieservice.exceptions.MovieCreationException;
 import com.jaitechltd.movieservice.model.ErrorResponse;
 import com.jaitechltd.movieservice.model.Movie;
@@ -7,15 +8,16 @@ import com.jaitechltd.movieservice.service.MovieService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
+
+import static org.springframework.http.ResponseEntity.ok;
 
 
 @Slf4j
@@ -35,7 +37,7 @@ public class MovieController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid input"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "409", description = "Movie already exists", content = @Content(mediaType = "application/json",
                     schema = @Schema(implementation = ErrorResponse.class)))})
-    public ResponseEntity<Object> createMovie(@RequestBody Movie movieRequest) throws MovieCreationException {
+    public ResponseEntity<Object> createMovie(@Valid @RequestBody Movie movieRequest) throws MovieCreationException {
 
         log.info("Create movie request received: {}", movieRequest);
 
@@ -53,13 +55,13 @@ public class MovieController {
 
         log.info("Update movie request received: {}", movieRequest);
 
-        Optional<Movie> movie = movieService.getMovie(movieId);
+        Optional<MovieDTO> movie = movieService.getMovieByMovieId(movieId);
 
         if (movie.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } else {
             final var updatedMovie = movieService.updateMovie(movieId, movieRequest);
-            return new ResponseEntity<>(updatedMovie, HttpStatus.OK);
+            return ok(updatedMovie);
         }
     }
 
@@ -73,12 +75,8 @@ public class MovieController {
 
         log.info("Get movie request received for id: {}", movieId);
 
-        Optional<Movie> movie = movieService.getMovie(movieId);
-
-        if (movie.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        return new ResponseEntity<>(movie, HttpStatus.OK);
+        Optional<MovieDTO> movieResponse = movieService.getMovieByMovieId(movieId);
+        return ok(movieResponse);
     }
 
     @GetMapping("/searchByName")
@@ -90,7 +88,7 @@ public class MovieController {
         log.info("Get movies request received for name: {}", movieName);
 
         List<Movie> movies = movieService.getMoviesByName(movieName);
-        return new ResponseEntity<>(Objects.requireNonNullElseGet(movies, Optional::empty), HttpStatus.OK);
+        return ok(movies);
     }
 
     @GetMapping("/search")
@@ -107,7 +105,7 @@ public class MovieController {
         if (movies == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>(movies, HttpStatus.OK);
+        return ok(movies);
     }
 
     @DeleteMapping("/{movieId}")
@@ -131,6 +129,6 @@ public class MovieController {
 
         log.info("Get all movies request received");
 
-        return new ResponseEntity<>(movieService.getAllMovies(), HttpStatus.OK);
+        return ok(movieService.getAllMovies());
     }
 }

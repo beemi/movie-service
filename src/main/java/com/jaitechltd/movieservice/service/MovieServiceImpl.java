@@ -2,10 +2,7 @@ package com.jaitechltd.movieservice.service;
 
 import com.jaitechltd.movieservice.config.properties.EventsKafkaProperties;
 import com.jaitechltd.movieservice.dto.MovieDTO;
-import com.jaitechltd.movieservice.exceptions.MovieCreationException;
-import com.jaitechltd.movieservice.exceptions.MoviesDataAccessException;
-import com.jaitechltd.movieservice.exceptions.MoviesUnexpectedException;
-import com.jaitechltd.movieservice.exceptions.UpdateMovieException;
+import com.jaitechltd.movieservice.exceptions.*;
 import com.jaitechltd.movieservice.kafka.KafkaProducerService;
 import com.jaitechltd.movieservice.metrics.MetricsService;
 import com.jaitechltd.movieservice.model.Movie;
@@ -23,6 +20,8 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import static com.jaitechltd.movieservice.dto.MovieDTO.getMovieDTO;
 
 @Service
 @Slf4j
@@ -60,26 +59,7 @@ public class MovieServiceImpl implements MovieService {
             final var savedMovie = movieRepository.save(movieRequest);
             kafkaProducerService.publish(eventsKafkaProperties.getTopic(), savedMovie);
             metricsService.addMovieSuccessCounter();
-            return MovieDTO.builder()
-                    .movieId(savedMovie.getMovieId())
-                    .movieName(savedMovie.getMovieName())
-                    .movieGenre(savedMovie.getMovieGenre())
-                    .movieLanguage(savedMovie.getMovieLanguage())
-                    .movieReleaseDate(savedMovie.getMovieReleaseDate())
-                    .movieDirector(savedMovie.getMovieDirector())
-                    .movieProducer(savedMovie.getMovieProducer())
-                    .movieCast(savedMovie.getMovieCast())
-                    .movieDescription(savedMovie.getMovieDescription())
-                    .movieCreatedDate(savedMovie.getMovieCreatedDate())
-                    .movieUpdatedDate(savedMovie.getMovieUpdatedDate())
-                    .movieStatus(savedMovie.getMovieStatus())
-                    .movieRating(savedMovie.getMovieRating())
-                    .movieDuration(savedMovie.getMovieDuration())
-                    .movieTrailer(savedMovie.getMovieTrailer())
-                    .moviePoster(savedMovie.getMoviePoster())
-                    .movieBanner(savedMovie.getMovieBanner())
-                    .movieCountry(savedMovie.getMovieCountry())
-                    .build();
+            return MovieDTO.fromMovie(savedMovie);
         } catch (Exception e) {
             log.error("Error while saving movie", e);
             metricsService.addMovieFailureCounter();
@@ -88,15 +68,15 @@ public class MovieServiceImpl implements MovieService {
     }
 
     @Override
-    public Optional<Movie> getMovie(Integer movieId) {
-        try {
-            metricsService.getMovieSuccessCounter();
-            return movieRepository.findByMovieId(movieId);
-        } catch (Exception e) {
-            log.error("Error while fetching movie", e);
+    public Optional<MovieDTO> getMovieByMovieId(Integer movieId) {
+
+        Optional<Movie> movie = movieRepository.findByMovieId(movieId);
+        if (movie.isEmpty()) {
             metricsService.getMovieFailureCounter();
-            return Optional.empty();
+            throw new MovieNotFoundException("Movie not found with id: " + movieId);
         }
+        metricsService.getMovieSuccessCounter();
+        return Optional.of(MovieDTO.fromMovie(movie.get()));
     }
 
     @Override
