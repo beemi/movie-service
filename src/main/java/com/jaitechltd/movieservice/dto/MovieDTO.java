@@ -1,13 +1,11 @@
-package com.jaitechltd.movieservice.model;
+package com.jaitechltd.movieservice.dto;
+
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.Indexed;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
 
@@ -16,13 +14,8 @@ import java.time.Instant;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@Document(collection = "Movie")
-public class Movie {
-
-    @Id
-    @Indexed(unique = true)
+public class MovieDTO {
     private Integer movieId;
-
     private String movieName;
     private String movieGenre;
     private String movieLanguage;
