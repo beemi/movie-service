@@ -87,7 +87,7 @@ public class MovieController {
 
         log.info("Get movies request received for name: {}", movieName);
 
-        List<Movie> movies = movieService.getMoviesByName(movieName);
+        List<MovieDTO> movies = movieService.getMoviesByName(movieName);
         return ok(movies);
     }
 

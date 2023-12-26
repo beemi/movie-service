@@ -25,8 +25,11 @@ public class Movie {
     @Positive(message = "Movie ID must be positive")
     private Integer movieId;
 
+    @Indexed
     private String movieName;
+    @Indexed
     private String movieGenre;
+    @Indexed
     private String movieLanguage;
     private String movieReleaseDate;
     private String movieDirector;

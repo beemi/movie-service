@@ -12,6 +12,8 @@ public interface MovieService {
 
     Optional<MovieDTO> getMovieByMovieId(Integer movieId);
 
+    List<MovieDTO> getMoviesByName(String movieName);
+
     void deleteByMovieId(Integer movieId);
 
     List<Movie> getAllMovies();
@@ -19,6 +21,4 @@ public interface MovieService {
     List<Movie> getMovies(String movieName, String movieGenre, String movieLanguage);
 
     Movie updateMovie(Integer movieId, Movie movie);
-
-    List<Movie> getMoviesByName(String movieName);
 }

@@ -18,8 +18,10 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.jaitechltd.movieservice.dto.MovieDTO.getMovieDTO;
 
@@ -68,7 +70,7 @@ public class MovieServiceImpl implements MovieService {
     }
 
     @Override
-    public Optional<MovieDTO> getMovieByMovieId(Integer movieId) {
+    public Optional<MovieDTO> getMovieByMovieId(final Integer movieId) {
 
         Optional<Movie> movie = movieRepository.findByMovieId(movieId);
         if (movie.isEmpty()) {
@@ -77,6 +79,20 @@ public class MovieServiceImpl implements MovieService {
         }
         metricsService.getMovieSuccessCounter();
         return Optional.of(MovieDTO.fromMovie(movie.get()));
+    }
+
+    @Override
+    public List<MovieDTO> getMoviesByName(final String movieName) {
+        List<Movie> movies = movieRepository.findByMovieName(movieName);
+
+        if (movies.isEmpty()) {
+            metricsService.getMovieFailureCounter();
+            return Collections.emptyList();
+        }
+        metricsService.getMovieSuccessCounter();
+        return movies.stream()
+                .map(MovieDTO::fromMovie)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -171,10 +187,5 @@ public class MovieServiceImpl implements MovieService {
             metricsService.updateMovieFailureCounter();
             throw new UpdateMovieException("Failed to update movie", e);
         }
-    }
-
-    @Override
-    public List<Movie> getMoviesByName(final String movieName) {
-        return movieRepository.findByMovieName(movieName);
     }
 }
