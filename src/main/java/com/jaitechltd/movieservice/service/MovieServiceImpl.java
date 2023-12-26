@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -61,14 +62,14 @@ public class MovieServiceImpl implements MovieService {
     }
 
     @Override
-    public Movie getMovie(Integer movieId) {
+    public Optional<Movie> getMovie(Integer movieId) {
         try {
             metricsService.getMovieSuccessCounter();
             return movieRepository.findByMovieId(movieId);
         } catch (Exception e) {
             log.error("Error while fetching movie", e);
             metricsService.getMovieFailureCounter();
-            return null;
+            return Optional.empty();
         }
     }
 
@@ -129,27 +130,31 @@ public class MovieServiceImpl implements MovieService {
     @Override
     public Movie updateMovie(Integer movieId, Movie movie) {
 
-        final var existingMovie = movieRepository.findByMovieId(movieId);
+        Optional<Movie> existingMovie = movieRepository.findByMovieId(movieId);
 
-        existingMovie.setMovieName(movie.getMovieName());
-        existingMovie.setMovieGenre(movie.getMovieGenre());
-        existingMovie.setMovieLanguage(movie.getMovieLanguage());
-        existingMovie.setMovieReleaseDate(movie.getMovieReleaseDate());
-        existingMovie.setMovieDirector(movie.getMovieDirector());
-        existingMovie.setMovieProducer(movie.getMovieProducer());
-        existingMovie.setMovieCast(movie.getMovieCast());
-        existingMovie.setMovieDescription(movie.getMovieDescription());
-        existingMovie.setMovieUpdatedDate(Instant.now());
-        existingMovie.setMovieStatus(movie.getMovieStatus());
-        existingMovie.setMovieRating(movie.getMovieRating());
-        existingMovie.setMovieDuration(movie.getMovieDuration());
-        existingMovie.setMovieTrailer(movie.getMovieTrailer());
-        existingMovie.setMoviePoster(movie.getMoviePoster());
-        existingMovie.setMovieBanner(movie.getMovieBanner());
-        existingMovie.setMovieCountry(movie.getMovieCountry());
+        if (existingMovie.isEmpty()) {
+            throw new UpdateMovieException("Movie not found");
+        }
+
+        existingMovie.get().setMovieName(movie.getMovieName());
+        existingMovie.get().setMovieGenre(movie.getMovieGenre());
+        existingMovie.get().setMovieLanguage(movie.getMovieLanguage());
+        existingMovie.get().setMovieReleaseDate(movie.getMovieReleaseDate());
+        existingMovie.get().setMovieDirector(movie.getMovieDirector());
+        existingMovie.get().setMovieProducer(movie.getMovieProducer());
+        existingMovie.get().setMovieCast(movie.getMovieCast());
+        existingMovie.get().setMovieDescription(movie.getMovieDescription());
+        existingMovie.get().setMovieUpdatedDate(Instant.now());
+        existingMovie.get().setMovieStatus(movie.getMovieStatus());
+        existingMovie.get().setMovieRating(movie.getMovieRating());
+        existingMovie.get().setMovieDuration(movie.getMovieDuration());
+        existingMovie.get().setMovieTrailer(movie.getMovieTrailer());
+        existingMovie.get().setMoviePoster(movie.getMoviePoster());
+        existingMovie.get().setMovieBanner(movie.getMovieBanner());
+        existingMovie.get().setMovieCountry(movie.getMovieCountry());
 
         try {
-            Movie savedMovie = movieRepository.save(existingMovie);
+            Movie savedMovie = movieRepository.save(existingMovie.get());
             metricsService.updateMovieSuccessCounter();
             return savedMovie;
         } catch (Exception e) {

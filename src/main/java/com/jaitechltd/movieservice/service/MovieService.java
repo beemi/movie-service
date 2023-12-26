@@ -4,12 +4,13 @@ import com.jaitechltd.movieservice.exceptions.MovieCreationException;
 import com.jaitechltd.movieservice.model.Movie;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface MovieService {
 
     Movie createMovie(Movie movie) throws MovieCreationException;
 
-    Movie getMovie(Integer movieId);
+    Optional<Movie> getMovie(Integer movieId);
 
     void deleteByMovieId(Integer movieId);
 

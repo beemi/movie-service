@@ -4,9 +4,10 @@ import com.jaitechltd.movieservice.model.Movie;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface MovieRepository extends MongoRepository<Movie, String> {
-    Movie findByMovieId(Integer movieId);
+    Optional<Movie> findByMovieId(Integer movieId);
 
     List<Movie> findByMovieName(String movieName);
 

@@ -35,12 +35,13 @@ public class MovieController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid input"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "409", description = "Movie already exists", content = @Content(mediaType = "application/json",
                     schema = @Schema(implementation = ErrorResponse.class)))})
-    public ResponseEntity<Object> createMovie(@RequestBody Movie movie) throws MovieCreationException {
+    public ResponseEntity<Object> createMovie(@RequestBody Movie movieRequest) throws MovieCreationException {
 
-        log.info("Create movie request received: {}", movie);
+        log.info("Create movie request received: {}", movieRequest);
 
-        final var existingMovie = movieService.getMovie(movie.getMovieId());
-        if (existingMovie != null) {
+        Optional<Movie> existingMovie = movieService.getMovie(movieRequest.getMovieId());
+        if (existingMovie.isPresent()) {
+
             var errorresponse = ErrorResponse.builder()
                     .timestamp(LocalDateTime.now())
                     .details(existingMovie)
@@ -50,7 +51,7 @@ public class MovieController {
             return new ResponseEntity<>(errorresponse, HttpStatus.CONFLICT);
         }
 
-        final var savedMovie = movieService.createMovie(movie);
+        final var savedMovie = movieService.createMovie(movieRequest);
         return new ResponseEntity<>(savedMovie, HttpStatus.CREATED);
     }
 
@@ -60,14 +61,16 @@ public class MovieController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid id supplied"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Movie not found"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "405", description = "Validation exception")})
-    public ResponseEntity<Object> updateMovie(@PathVariable Integer movieId, @RequestBody Movie movie) {
+    public ResponseEntity<Object> updateMovie(@PathVariable Integer movieId, @RequestBody Movie movieRequest) {
 
-        log.info("Update movie request received: {}", movie);
-        final var existingMovie = movieService.getMovie(movieId);
-        if (existingMovie == null) {
+        log.info("Update movie request received: {}", movieRequest);
+
+        Optional<Movie> movie = movieService.getMovie(movieId);
+
+        if (movie.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } else {
-            final var updatedMovie = movieService.updateMovie(movieId, movie);
+            final var updatedMovie = movieService.updateMovie(movieId, movieRequest);
             return new ResponseEntity<>(updatedMovie, HttpStatus.OK);
         }
     }
@@ -82,8 +85,9 @@ public class MovieController {
 
         log.info("Get movie request received for id: {}", movieId);
 
-        final var movie = movieService.getMovie(movieId);
-        if (movie == null) {
+        Optional<Movie> movie = movieService.getMovie(movieId);
+
+        if (movie.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(movie, HttpStatus.OK);
