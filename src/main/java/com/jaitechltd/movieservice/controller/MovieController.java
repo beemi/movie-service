@@ -39,18 +39,6 @@ public class MovieController {
 
         log.info("Create movie request received: {}", movieRequest);
 
-        Optional<Movie> existingMovie = movieService.getMovie(movieRequest.getMovieId());
-        if (existingMovie.isPresent()) {
-
-            var errorresponse = ErrorResponse.builder()
-                    .timestamp(LocalDateTime.now())
-                    .details(existingMovie)
-                    .message("Movie already exists")
-                    .build();
-
-            return new ResponseEntity<>(errorresponse, HttpStatus.CONFLICT);
-        }
-
         final var savedMovie = movieService.createMovie(movieRequest);
         return new ResponseEntity<>(savedMovie, HttpStatus.CREATED);
     }

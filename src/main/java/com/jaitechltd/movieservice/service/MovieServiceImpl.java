@@ -1,20 +1,23 @@
 package com.jaitechltd.movieservice.service;
 
 import com.jaitechltd.movieservice.config.properties.EventsKafkaProperties;
+import com.jaitechltd.movieservice.dto.MovieDTO;
 import com.jaitechltd.movieservice.exceptions.MovieCreationException;
+import com.jaitechltd.movieservice.exceptions.MoviesDataAccessException;
+import com.jaitechltd.movieservice.exceptions.MoviesUnexpectedException;
 import com.jaitechltd.movieservice.exceptions.UpdateMovieException;
 import com.jaitechltd.movieservice.kafka.KafkaProducerService;
 import com.jaitechltd.movieservice.metrics.MetricsService;
 import com.jaitechltd.movieservice.model.Movie;
 import com.jaitechltd.movieservice.repository.MovieRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -43,17 +46,40 @@ public class MovieServiceImpl implements MovieService {
     }
 
     @Override
-    @Transactional
-    public Movie createMovie(Movie movie) throws MovieCreationException {
+    public MovieDTO createMovie(Movie movieRequest) {
 
-        movie.setMovieCreatedDate(Instant.now());
-        movie.setMovieUpdatedDate(Instant.now());
+        Optional<Movie> existingMovie = movieRepository.findByMovieId(movieRequest.getMovieId());
+        if (existingMovie.isPresent()) {
+            throw new MovieCreationException("Movie already exists with id: " + movieRequest.getMovieId());
+        }
+
+        movieRequest.setMovieCreatedDate(Instant.now());
+        movieRequest.setMovieUpdatedDate(Instant.now());
 
         try {
-            final var savedMovie = movieRepository.save(movie);
+            final var savedMovie = movieRepository.save(movieRequest);
             kafkaProducerService.publish(eventsKafkaProperties.getTopic(), savedMovie);
             metricsService.addMovieSuccessCounter();
-            return savedMovie;
+            return MovieDTO.builder()
+                    .movieId(savedMovie.getMovieId())
+                    .movieName(savedMovie.getMovieName())
+                    .movieGenre(savedMovie.getMovieGenre())
+                    .movieLanguage(savedMovie.getMovieLanguage())
+                    .movieReleaseDate(savedMovie.getMovieReleaseDate())
+                    .movieDirector(savedMovie.getMovieDirector())
+                    .movieProducer(savedMovie.getMovieProducer())
+                    .movieCast(savedMovie.getMovieCast())
+                    .movieDescription(savedMovie.getMovieDescription())
+                    .movieCreatedDate(savedMovie.getMovieCreatedDate())
+                    .movieUpdatedDate(savedMovie.getMovieUpdatedDate())
+                    .movieStatus(savedMovie.getMovieStatus())
+                    .movieRating(savedMovie.getMovieRating())
+                    .movieDuration(savedMovie.getMovieDuration())
+                    .movieTrailer(savedMovie.getMovieTrailer())
+                    .moviePoster(savedMovie.getMoviePoster())
+                    .movieBanner(savedMovie.getMovieBanner())
+                    .movieCountry(savedMovie.getMovieCountry())
+                    .build();
         } catch (Exception e) {
             log.error("Error while saving movie", e);
             metricsService.addMovieFailureCounter();
@@ -87,14 +113,17 @@ public class MovieServiceImpl implements MovieService {
 
     @Override
     public List<Movie> getAllMovies() {
-
         try {
             metricsService.getAllMoviesSuccessCounter();
             return movieRepository.findAll();
-        } catch (Exception e) {
+        } catch (DataAccessException e) {
             log.error("Error while fetching all movies", e);
             metricsService.getAllMoviesFailureCounter();
-            return new ArrayList<>();
+            throw new MoviesDataAccessException("Failed to fetch all movies", e);
+        } catch (Exception e) {
+            log.error("Unexpected error while fetching all movies", e);
+            metricsService.getAllMoviesFailureCounter();
+            throw new MoviesUnexpectedException("Unexpected error occurred", e);
         }
     }
 

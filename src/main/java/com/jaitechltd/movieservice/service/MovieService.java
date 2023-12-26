@@ -1,6 +1,6 @@
 package com.jaitechltd.movieservice.service;
 
-import com.jaitechltd.movieservice.exceptions.MovieCreationException;
+import com.jaitechltd.movieservice.dto.MovieDTO;
 import com.jaitechltd.movieservice.model.Movie;
 
 import java.util.List;
@@ -8,7 +8,7 @@ import java.util.Optional;
 
 public interface MovieService {
 
-    Movie createMovie(Movie movie) throws MovieCreationException;
+    MovieDTO createMovie(Movie movie);
 
     Optional<Movie> getMovie(Integer movieId);
 

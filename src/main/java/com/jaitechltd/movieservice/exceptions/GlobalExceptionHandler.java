@@ -12,10 +12,10 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(MovieCreationException.class)
-    public ResponseEntity<ApiResponse<Object>> handleMovieCreationException(MovieCreationException ex) {
+    public ResponseEntity<ApiResponse<Object>> handleDuplicateMovieException(MovieCreationException ex) {
 
         return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
+                .status(HttpStatus.CONFLICT)
                 .body(ApiResponse.failure(ex.getMessage()));
     }
 
@@ -32,6 +32,30 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
+                .body(ApiResponse.failure(ex.getMessage()));
+    }
+
+    @ExceptionHandler(MoviesNotFoundResultException.class)
+    public ResponseEntity<ApiResponse<Object>> handleMoviesNotFoundResultException(MoviesNotFoundResultException ex) {
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(ApiResponse.failure(ex.getMessage()));
+    }
+
+    @ExceptionHandler(MoviesDataAccessException.class)
+    public ResponseEntity<ApiResponse<Object>> handleMoviesDataAccessException(MoviesDataAccessException ex) {
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_GATEWAY)
+                .body(ApiResponse.failure(ex.getMessage()));
+    }
+
+    @ExceptionHandler(MoviesUnexpectedException.class)
+    public ResponseEntity<ApiResponse<Object>> handleMoviesUnexpectedException(MoviesUnexpectedException ex) {
+
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ApiResponse.failure(ex.getMessage()));
     }
 
