@@ -187,4 +187,18 @@ public class MovieServiceImpl implements MovieService {
             throw new UpdateMovieException("Failed to update movie", e);
         }
     }
+
+    @Override
+    public List<MovieDTO> getMoviesByCountry(final String movieCountry) {
+
+        List<Movie> movies = movieRepository.findByMovieCountry(movieCountry);
+        if (movies.isEmpty()) {
+            metricsService.getMovieFailureCounter();
+            return Collections.emptyList();
+        }
+        metricsService.getMovieSuccessCounter();
+        return movies.stream()
+                .map(MovieDTO::fromMovie)
+                .collect(Collectors.toList());
+    }
 }

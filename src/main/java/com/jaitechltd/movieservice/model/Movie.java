@@ -44,5 +44,6 @@ public class Movie {
     private String movieTrailer;
     private String moviePoster;
     private String movieBanner;
+    @Indexed
     private String movieCountry;
 }

@@ -98,6 +98,20 @@ public class MovieController {
         return ok(movies);
     }
 
+    @GetMapping("/searchByCountry")
+    @Operation(summary = "Get movies by country", description = "Get movies by country", tags = {"movies"}, operationId = "getMoviesByCountry", responses = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Movies found"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Movies not found")},
+            parameters = {
+                    @Parameter(name = "movieCountry", description = "movie country", required = true, schema = @Schema(type = "string", defaultValue = "USA"))})
+    public ResponseEntity<Object> getMoviesByCountry(@RequestParam(value = "movieCountry", required = true) final String movieCountry) {
+
+            log.info("Get movies request received for country: {}", movieCountry);
+
+            List<MovieDTO> movies = movieService.getMoviesByCountry(movieCountry);
+            return ok(movies);
+    }
+
     @GetMapping("/search")
     @Operation(summary = "Get movies by name, genre and language", description = "Get movies by name, genre and language", tags = {"movies"}, operationId = "getMovies", responses = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Movies found"),

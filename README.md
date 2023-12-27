@@ -1,6 +1,19 @@
 # Spring boot REST API with MongoDB
 
-This is an example of a REST API using Spring Boot and MongoDB.
+This is simple REST API for movies. It is built using Spring Boot, MongoDB, Kafka, Docker, and Maven.
+
+## Features
+
+- Create a movie
+- Update a movie
+- Delete a movie
+- Get a movie by id
+- Get all movies
+- Get all movies by Country
+- Get all movies by genre
+- Get all movies by release date
+- Get all movies by rating
+- Delete movie by id
 
 ## Requirements
 
@@ -9,6 +22,7 @@ This is an example of a REST API using Spring Boot and MongoDB.
 - Docker Compose
 - Maven
 - MongoDB
+- Kafka
 - MongoDB Compass
 - Postman
 
