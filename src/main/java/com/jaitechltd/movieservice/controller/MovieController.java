@@ -129,7 +129,7 @@ public class MovieController {
     }
 
     @GetMapping
-    @Operation(summary = "Get all movies", description = "Get all movies", tags = {"movies"}, operationId = "getAllMovies", responses = {
+    @Operation(summary = "Get all movies", description = "Get all movies with pagination", tags = {"movies"}, operationId = "getAllMovies", responses = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Movies found"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Movies not found")},
             parameters = {
