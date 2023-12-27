@@ -8,6 +8,7 @@ import com.jaitechltd.movieservice.metrics.MetricsService;
 import com.jaitechltd.movieservice.model.Movie;
 import com.jaitechltd.movieservice.repository.MovieRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -69,6 +70,7 @@ public class MovieServiceImpl implements MovieService {
     }
 
     @Override
+    @Cacheable(value = "movies", key = "#movieId")
     public Optional<MovieDTO> getMovieByMovieId(final Integer movieId) {
 
         Optional<Movie> movie = movieRepository.findByMovieId(movieId);
