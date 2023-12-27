@@ -32,6 +32,8 @@ Access Prometheus at: http://localhost:8090/actuator/prometheus
 
 ## kafka
 
+Movie events are published to a Kafka topic when a movie is created or updated,
+
 ### Run Just Kafka services
 ```bash
 docker-compose -f docker-compose.kafka.yml up -d
