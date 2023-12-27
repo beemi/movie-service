@@ -6,10 +6,13 @@ import com.jaitechltd.movieservice.model.ErrorResponse;
 import com.jaitechltd.movieservice.model.Movie;
 import com.jaitechltd.movieservice.service.MovieService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -124,11 +127,17 @@ public class MovieController {
     @GetMapping
     @Operation(summary = "Get all movies", description = "Get all movies", tags = {"movies"}, operationId = "getAllMovies", responses = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Movies found"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Movies not found")})
-    public ResponseEntity<Object> getAllMovies() {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Movies not found")},
+            parameters = {
+                    @Parameter(name = "page", description = "page number", required = false, schema = @Schema(type = "integer", defaultValue = "0")),
+                    @Parameter(name = "size", description = "page size", required = false, schema = @Schema(type = "integer", defaultValue = "10"))})
+    public Page<Movie> getAllMovies(@RequestParam(defaultValue = "0") int page,
+                                    @RequestParam(defaultValue = "10") int size) {
 
-        log.info("Get all movies request received");
+        log.info("Get all movies request with page: {}, size: {}", page, size);
 
-        return ok(movieService.getAllMovies());
+        final var pageable = PageRequest.of(page, size);
+
+        return movieService.getAllMovies(pageable);
     }
 }

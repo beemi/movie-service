@@ -2,6 +2,8 @@ package com.jaitechltd.movieservice.service;
 
 import com.jaitechltd.movieservice.dto.MovieDTO;
 import com.jaitechltd.movieservice.model.Movie;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,7 +18,7 @@ public interface MovieService {
 
     void deleteByMovieId(Integer movieId);
 
-    List<Movie> getAllMovies();
+    Page<Movie> getAllMovies(Pageable pageable);
 
     List<Movie> getMovies(String movieName, String movieGenre, String movieLanguage);
 
