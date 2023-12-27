@@ -73,7 +73,9 @@ public class MovieController {
     @Operation(summary = "Get a movie by id", description = "Get a movie by id", tags = {"movies"}, operationId = "getMovieById", responses = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Movie found"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid id supplied"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Movie not found")})
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Movie not found")},
+            parameters = {
+                    @Parameter(name = "movieId", description = "movie id", required = true, schema = @Schema(type = "integer", defaultValue = "1"))})
     public ResponseEntity<Object> getMovie(@PathVariable Integer movieId) {
 
         log.info("Get movie request received for id: {}", movieId);
@@ -85,7 +87,9 @@ public class MovieController {
     @GetMapping("/searchByName")
     @Operation(summary = "Get movies by name", description = "Get movies by name", tags = {"movies"}, operationId = "getMoviesByName", responses = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Movies found"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Movies not found")})
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Movies not found")},
+            parameters = {
+                    @Parameter(name = "movieName", description = "movie name", required = true, schema = @Schema(type = "string", defaultValue = "The Matrix"))})
     public ResponseEntity<Object> getMoviesByName(@RequestParam(value = "movieName", required = true) final String movieName) {
 
         log.info("Get movies request received for name: {}", movieName);
