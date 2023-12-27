@@ -106,26 +106,9 @@ public class MovieController {
                     @Parameter(name = "movieCountry", description = "movie country", required = true, schema = @Schema(type = "string", defaultValue = "USA"))})
     public ResponseEntity<Object> getMoviesByCountry(@RequestParam(value = "movieCountry", required = true) final String movieCountry) {
 
-            log.info("Get movies request received for country: {}", movieCountry);
+        log.info("Get movies request received for country: {}", movieCountry);
 
-            List<MovieDTO> movies = movieService.getMoviesByCountry(movieCountry);
-            return ok(movies);
-    }
-
-    @GetMapping("/search")
-    @Operation(summary = "Get movies by name, genre and language", description = "Get movies by name, genre and language", tags = {"movies"}, operationId = "getMovies", responses = {
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Movies found"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Movies not found")})
-    public ResponseEntity<Object> getMovies(@RequestParam(value = "movieName", required = false) String movieName,
-                                            @RequestParam(value = "movieGenre", required = false) String movieGenre,
-                                            @RequestParam(value = "movieLanguage", required = false) String movieLanguage) {
-
-        log.info("Get movies request received for name: {}, genre: {}, language: {}", movieName, movieGenre, movieLanguage);
-
-        List<Movie> movies = movieService.getMovies(movieName, movieGenre, movieLanguage);
-        if (movies == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        List<MovieDTO> movies = movieService.getMoviesByCountry(movieCountry);
         return ok(movies);
     }
 
@@ -140,6 +123,28 @@ public class MovieController {
 
         movieService.deleteByMovieId(movieId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @GetMapping("/search")
+    @Operation(summary = "Get movies by name, genre and language", description = "Get movies by name, genre and language", tags = {"movies"}, operationId = "getMovies", responses = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Movies found"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Movies not found")},
+            parameters = {
+                    @Parameter(name = "page", description = "page number", required = false, schema = @Schema(type = "integer", defaultValue = "0")),
+                    @Parameter(name = "size", description = "page size", required = false, schema = @Schema(type = "integer", defaultValue = "10")),
+                    @Parameter(name = "movieName", description = "movie name", required = false, schema = @Schema(type = "string", defaultValue = "The Matrix")),
+                    @Parameter(name = "movieGenre", description = "movie genre", required = false, schema = @Schema(type = "string", defaultValue = "Action")),
+                    @Parameter(name = "movieLanguage", description = "movie language", required = false, schema = @Schema(type = "string", defaultValue = "English"))})
+    public Page<Movie> getMovies(@RequestParam(defaultValue = "0") int page,
+                                 @RequestParam(defaultValue = "10") int size,
+                                 @RequestParam(value = "movieName", required = false) String movieName,
+                                 @RequestParam(value = "movieGenre", required = false) String movieGenre,
+                                 @RequestParam(value = "movieLanguage", required = false) String movieLanguage) {
+        log.info("Get movies request received for name: {}, genre: {}, language: {}", movieName, movieGenre, movieLanguage);
+
+        final var pageable = PageRequest.of(page, size);
+
+        return movieService.getMovies(pageable, movieName, movieGenre, movieLanguage);
     }
 
     @GetMapping

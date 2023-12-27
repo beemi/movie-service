@@ -20,7 +20,7 @@ public interface MovieService {
 
     Page<Movie> getAllMovies(Pageable pageable);
 
-    List<Movie> getMovies(String movieName, String movieGenre, String movieLanguage);
+    Page<Movie> getMovies(Pageable pageable,String movieName, String movieGenre, String movieLanguage);
 
     Movie updateMovie(Integer movieId, Movie movie);
 

@@ -10,7 +10,7 @@ import com.jaitechltd.movieservice.repository.MovieRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -123,7 +123,7 @@ public class MovieServiceImpl implements MovieService {
     }
 
     @Override
-    public List<Movie> getMovies(String movieName, String movieGenre, String movieLanguage) {
+    public Page<Movie> getMovies(Pageable pageable, String movieName, String movieGenre, String movieLanguage) {
 
         Query query = new Query();
         List<Criteria> criteria = new ArrayList<>();
@@ -144,11 +144,11 @@ public class MovieServiceImpl implements MovieService {
             query.addCriteria(new Criteria().andOperator(criteria.toArray(new Criteria[0])));
         }
 
-        Pageable pageable = PageRequest.of(0, 10);
-
+        long total = mongoTemplate.count(query, Movie.class);
         query.with(pageable);
+        List<Movie> movies = mongoTemplate.find(query, Movie.class);
 
-        return mongoTemplate.find(query, Movie.class);
+        return new PageImpl<>(movies, pageable, total);
     }
 
     @Override

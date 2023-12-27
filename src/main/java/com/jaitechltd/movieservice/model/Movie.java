@@ -1,6 +1,7 @@
 package com.jaitechltd.movieservice.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -26,6 +27,7 @@ public class Movie {
     private Integer movieId;
 
     @Indexed
+    @NotBlank(message = "Movie name cannot be blank")
     private String movieName;
     @Indexed
     private String movieGenre;
